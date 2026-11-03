@@ -6,8 +6,8 @@
 #endif
 
 pdsp::Engine::Engine() : score( sequencer ){
-    inputID = 0;
-    outputID = 0;
+    inputID = -1;
+    outputID = -1;
     inStreamActive = false;
     outStreamActive = false;
 
@@ -228,16 +228,40 @@ void pdsp::Engine::setup( int sampleRate, int bufferSize, int nBuffers){
 
     #else
         auto devices = outputStream.getDeviceList();
-        
+
+        // outputID/inputID hold a real ofSoundDevice::deviceID (set via
+        // setOutputDeviceID()/setInputDeviceID()), not an index: on backends
+        // like CoreAudio the device ID is an arbitrary OS-assigned number,
+        // not a small sequential index, so devices[id] would be out of range
+        // (or silently wrong) for anything but the first device. -1 means
+        // "no explicit choice", which resolves to the API's default device
+        // instead of blindly using devices[0].
+        auto findDevice = [&devices]( int id, bool wantDefaultOutput ) -> ofSoundDevice {
+            if( id >= 0 ){
+                for( const auto & d : devices ){
+                    if( d.deviceID == id ){
+                        return d;
+                    }
+                }
+                ofLogWarning()<<"[pdsp] engine: requested device ID "<<id<<" not found, using the system default";
+            }
+            for( const auto & d : devices ){
+                if( wantDefaultOutput ? d.isDefaultOutput : d.isDefaultInput ){
+                    return d;
+                }
+            }
+            return devices.empty() ? ofSoundDevice() : devices[0];
+        };
+
         if( outputChannels > 0 ){
             outStreamActive = true;
             settings.setOutListener(this);
-            settings.setOutDevice( devices[outputID] );
+            settings.setOutDevice( findDevice(outputID, true) );
         }
         if(inputChannels > 0 ){
             outStreamActive = true;
             settings.setInListener(this);
-            settings.setInDevice( devices[inputID] );
+            settings.setInDevice( findDevice(inputID, false) );
         }
         
         outputStream.setup( settings );
