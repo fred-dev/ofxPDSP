@@ -7,6 +7,9 @@
 #define OFX_PDSP_ENGINE_H_INCLUDED
 
 #include "ofMain.h"
+#include <atomic>
+#include <cstdint>
+#include <mutex>
 #include "../DSP/pdspCore.h"
 #include "../sequencer/SequencerSection.h"
 #include "../sequencer/SequencerProcessor.h"
@@ -163,6 +166,36 @@ public:
     */   
     void setBackgroundAudio( bool active );
 
+    /*!
+    @brief locks the DSP graph so it can be repatched safely from another thread.
+    Patching (operator >>, disconnect, setSample...) is not thread safe: the audio
+    thread may be walking the same connection lists. Hold the returned lock while
+    you change connections. The audio callback never waits for it: while the lock
+    is held it outputs silence for that buffer instead of processing, so keep the
+    locked section short (patch only, load files before taking the lock).
+    @code
+    {
+        auto lock = engine.lockPatching();
+        voice.disconnectAll();
+        voice >> effect >> engine.audio_out(0);
+    } // released here
+    @endcode
+    */
+    std::unique_lock<std::mutex> lockPatching();
+
+    /*!
+    @brief processes one block of audio without any sound device, writing
+    interleaved samples. Use it for benchmarks and automated tests. Call
+    pdsp::prepareAllToPlay(bufferSize, sampleRate) once beforehand, or setup().
+    */
+    void renderOffline( float* interleaved, int channels, int frames );
+
+    /*!
+    @brief number of audio callbacks that output silence because the graph was
+    locked by lockPatching(). Useful to check that repatching stays rare.
+    */
+    uint64_t getSkippedCallbacks() const;
+
 /*!
     @cond HIDDEN_SYMBOLS
 */
@@ -214,6 +247,13 @@ private:
     pdsp::OneBarTimeMs barTime;
     
     bool bBackgroundAudio;
+
+    // Guards the DSP graph against concurrent repatching (see lockPatching()).
+    std::mutex patchMutex;
+    std::atomic<uint64_t> skippedCallbacks { 0 };
+
+    // Midi, osc, sequencer and DSP processing shared by audioOut() and renderOffline().
+    void processBlock( float* interleaved, int channels, int frames );
         
 };
 

@@ -327,8 +327,38 @@ void pdsp::Engine::close(){
 }
 
 void pdsp::Engine::audioOut(ofSoundBuffer &outBuffer) {
-    
-    int bufferSize =  outBuffer.getNumFrames() ;
+
+    // Denormal flushing is per thread, so it has to be set on the audio thread.
+    ofx_activate_denormal_flush();
+
+    // Never block the audio thread: if the graph is being repatched, output
+    // silence for this buffer and try again on the next callback.
+    std::unique_lock<std::mutex> lock( patchMutex, std::try_to_lock );
+    if( !lock.owns_lock() ){
+        outBuffer.set( 0.0f );
+        skippedCallbacks++;
+        return;
+    }
+    processBlock( outBuffer.getBuffer().data(), outBuffer.getNumChannels(), outBuffer.getNumFrames() );
+}
+
+std::unique_lock<std::mutex> pdsp::Engine::lockPatching() {
+    return std::unique_lock<std::mutex>( patchMutex );
+}
+
+uint64_t pdsp::Engine::getSkippedCallbacks() const {
+    return skippedCallbacks.load();
+}
+
+void pdsp::Engine::renderOffline( float* interleaved, int channels, int frames ) {
+    ofx_activate_denormal_flush();
+    std::lock_guard<std::mutex> lock( patchMutex );
+    processBlock( interleaved, channels, frames );
+}
+
+void pdsp::Engine::processBlock( float* interleaved, int channels, int frames ) {
+
+    int bufferSize = frames;
 
 #ifndef __ANDROID__
     // midi input processing
@@ -359,7 +389,7 @@ void pdsp::Engine::audioOut(ofSoundBuffer &outBuffer) {
     
     //DSP processing
     if(outputChannels > 0){
-        processor.processAndCopyInterleaved(outBuffer.getBuffer().data(), outBuffer.getNumChannels(), outBuffer.getNumFrames());    
+        processor.processAndCopyInterleaved( interleaved, channels, frames );
     }
 }
 

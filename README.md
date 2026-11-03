@@ -1,3 +1,23 @@
+# ofxPDSP (fred-dev fork, `ai-refactor` branch)
+
+Changes in this fork, kept small and in the original design:
+
+* **Builds on current openFrameworks (main)**: every header now includes what it
+  uses (`<atomic>`, `<chrono>`, `<thread>`, `<limits>`...) and names are
+  `std::`-qualified, so nothing relies on `using namespace std` from `ofMain.h`.
+  Each source and header compiles on its own.
+* **Thread-safe repatching**: `engine.lockPatching()` returns a lock; while it is
+  held the audio callback outputs one buffer of silence instead of walking a
+  half-changed graph (it never blocks the audio thread). Patching from the main
+  thread while audio runs could previously crash.
+* **Denormal flushing in the audio thread** (x86 SSE, ARM64, ARM VFP): decaying
+  reverb/delay tails no longer cause CPU spikes.
+* `engine.renderOffline()` renders blocks without a sound device (benchmarks,
+  automated tests). `engine.getSkippedCallbacks()` reports locked buffers.
+* `addon_config.mk` declares its dependencies (`ofxAudioFile ofxMidi ofxOsc`)
+  and has an explicit section for 64 bit Raspberry Pi OS (`linuxaarch64`).
+* `flags.h` no longer mistakes the ARMv6 DSP extension for NEON.
+
 ofxPDSP
 ==============
 

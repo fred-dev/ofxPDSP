@@ -8,6 +8,7 @@
 #define PDSP_ENVSTAGE_ENVELOPESTAGE_H_INCLUDED
 
 #include "../../../flags.h"
+#include "../../../math/simd/core/inlines.h"
 #include <math.h>
 
 namespace pdsp {

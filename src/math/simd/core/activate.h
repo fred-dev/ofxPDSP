@@ -12,9 +12,8 @@
 
 
 
-// treats denormalized floats as zeroes when using SIMD operation on SSE cpus
-// if you are using a NEON cpu you can also ignore this, it won't do anything as 
-// flush to zero is the standard NEON behavior.
+// Enables flush-to-zero for denormal floats on the calling thread (x86 SSE,
+// ARM64 and 32 bit ARM VFP). pdsp::Engine calls it in every audio callback.
 void ofx_activate_denormal_flush();
    
 

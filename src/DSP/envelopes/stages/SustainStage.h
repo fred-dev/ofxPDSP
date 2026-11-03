@@ -8,6 +8,7 @@
 #define PDSP_ENVSTAGE_SUSTAINSTAGE_H_INCLUDED
 
 #include "EnvelopeStage.h"
+#include "../../core/BasicNodes.h"
 
 
 namespace pdsp{

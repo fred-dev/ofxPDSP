@@ -10,6 +10,7 @@
 #include "../DSP/helpers/UsesSlew.h"
 
 #include "ofMain.h"
+#include <atomic>
 
 //-------------------------------------------------------------------------------------------------
 
@@ -66,8 +67,8 @@ private:
     void releaseResources () override ;
     void process (int bufferSize) noexcept override;
 
-    atomic<float> lastValue;
-    atomic<float> value;
+    std::atomic<float> lastValue;
+    std::atomic<float> value;
     
 };
 

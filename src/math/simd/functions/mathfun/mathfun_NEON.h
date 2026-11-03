@@ -33,6 +33,7 @@
 #define OFX_SIMDFLOATS_MATHFUN_NEON_H_INCLUDED
 
 #include "../simd_wrapper.h"
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 
 
@@ -332,5 +333,7 @@ namespace ofx {
 }
 
 
+
+#endif // __ARM_NEON
 
 #endif  // OFX_SIMDFLOATS_MATHFUN_NEON_H_INCLUDED

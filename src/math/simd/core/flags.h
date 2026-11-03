@@ -17,12 +17,9 @@
     #define OFX_SIMD_ALIGNMENT_NUM 16
 #endif
 
-#if (__ARM_FEATURE_SIMD32 > 0)
-    #ifndef __ARM_NEON
-        #define __ARM_NEON
-    #endif
-#endif
-
+// NEON is used only when the compiler says it is available (always on
+// aarch64, on 32 bit ARM only with a NEON capable -mfpu). Note that
+// __ARM_FEATURE_SIMD32 means the ARMv6 DSP extension, not NEON.
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #define OFX_SIMD_USE_NEON
     #define OFX_SIMD_USE_SIMD

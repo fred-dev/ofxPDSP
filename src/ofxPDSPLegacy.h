@@ -1,6 +1,21 @@
 
 #pragma once
 
+// Legacy ofxPDSP type names. Includes the full library so it can be used on its own.
+#include "DSP/header.h"
+#include "modules/header.h"
+#include "ofx/Engine.h"
+#include "ofx/ComputerKeyboard.h"
+#include "ofx/Midi.h"
+#include "ofx/OscInput.h"
+#include "ofx/OscOutput.h"
+#include "ofx/Wrapper.h"
+#include "ofx/Parameter.h"
+#include "ofx/ParameterAmp.h"
+#include "ofx/ParameterGain.h"
+#include "ofx/Scope.h"
+#include "ofx/SampleBufferPlotter.h"
+
 // comment to deactivate legacy defines
 #define OFXPDSP_LEGACY
 
