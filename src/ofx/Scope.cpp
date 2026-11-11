@@ -28,6 +28,17 @@ pdsp::Scope& pdsp::Scope::operator=(const pdsp::Scope& other){
 
 pdsp::Patchable& pdsp::Scope::set( int samplesLength) {
     bufferLen = samplesLength;
+    // A Scope created while the engine is running was already prepared in its
+    // constructor, with a buffer of one audio block. Without this resize,
+    // process() would write up to the new bufferLen into that shorter buffer.
+    // Call set() before patching the scope, not while it is being processed.
+    if( !buffer.empty() ){
+        if( bufferLen < static_cast<int>(buffer.size()) ){
+            bufferLen = static_cast<int>(buffer.size());
+        }
+        buffer.resize(bufferLen, 0.0f);
+        bufferPos = 0;
+    }
     return *this;
 }
 
