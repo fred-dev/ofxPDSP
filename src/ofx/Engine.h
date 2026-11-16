@@ -196,6 +196,14 @@ public:
     */
     uint64_t getSkippedCallbacks() const;
 
+    /*!
+    @brief number of audio callbacks received from the sound device since the
+    engine was created (processed or skipped). If this stops rising after
+    setup(), the device stream is not running: setup() cannot tell, because a
+    device that refuses the sample rate or channel count only logs an error.
+    */
+    uint64_t getCallbackCount() const;
+
 /*!
     @cond HIDDEN_SYMBOLS
 */
@@ -251,6 +259,7 @@ private:
     // Guards the DSP graph against concurrent repatching (see lockPatching()).
     std::mutex patchMutex;
     std::atomic<uint64_t> skippedCallbacks { 0 };
+    std::atomic<uint64_t> callbackCount { 0 };
 
     // Midi, osc, sequencer and DSP processing shared by audioOut() and renderOffline().
     void processBlock( float* interleaved, int channels, int frames );

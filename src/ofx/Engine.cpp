@@ -352,6 +352,8 @@ void pdsp::Engine::close(){
 
 void pdsp::Engine::audioOut(ofSoundBuffer &outBuffer) {
 
+    callbackCount++;
+
     // Denormal flushing is per thread, so it has to be set on the audio thread.
     ofx_activate_denormal_flush();
 
@@ -372,6 +374,10 @@ std::unique_lock<std::mutex> pdsp::Engine::lockPatching() {
 
 uint64_t pdsp::Engine::getSkippedCallbacks() const {
     return skippedCallbacks.load();
+}
+
+uint64_t pdsp::Engine::getCallbackCount() const {
+    return callbackCount.load();
 }
 
 void pdsp::Engine::renderOffline( float* interleaved, int channels, int frames ) {
