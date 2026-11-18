@@ -21,6 +21,7 @@ namespace pdsp{
     
 class SRDelay : public Unit {
 public:
+    ~SRDelay(); ///< frees the buffer (it leaked when a unit was destroyed)
 
     SRDelay();
     SRDelay( float timeMs);

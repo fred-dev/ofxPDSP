@@ -94,6 +94,12 @@ void pdsp::AllPassDelay::prepareUnit ( int expectedBufferSize, double sampleRate
 
 }
 
+pdsp::AllPassDelay::~AllPassDelay(){
+    if (delayBuffer != nullptr){
+        ofx_deallocate_aligned(delayBuffer);
+    }
+}
+
 void pdsp::AllPassDelay::releaseResources(){
         if (delayBuffer != nullptr){
                 ofx_deallocate_aligned(delayBuffer);

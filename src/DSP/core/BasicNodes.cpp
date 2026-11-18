@@ -724,7 +724,10 @@ void pdsp::OutputNode::updateTurnId() {
 pdsp::ValueNode::ValueNode() {
     state = Changed;
     nodeValue.store(0.0f);
-    buffer = nullptr;
+    // OutputNode() already allocated a buffer if the engine was running
+    // (dynamic construction); a ValueNode never uses it, so free it
+    // rather than leak it.
+    if( buffer != nullptr ) { ofx_deallocate_aligned( buffer ); }
     parent = nullptr;
     oversampleLevel = -1;
 }
@@ -732,7 +735,10 @@ pdsp::ValueNode::ValueNode() {
 pdsp::ValueNode::ValueNode( const ValueNode& other ) {
     state = Changed;
     nodeValue.store(other.nodeValue.load());
-    buffer = nullptr;
+    // OutputNode() already allocated a buffer if the engine was running
+    // (dynamic construction); a ValueNode never uses it, so free it
+    // rather than leak it.
+    if( buffer != nullptr ) { ofx_deallocate_aligned( buffer ); }
     parent = nullptr;
     oversampleLevel = -1;
 }

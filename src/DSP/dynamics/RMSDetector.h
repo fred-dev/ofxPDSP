@@ -20,6 +20,7 @@ namespace pdsp{
 class RMSDetector : public Unit{
 
 public:        
+    ~RMSDetector(); ///< frees the buffer (it leaked when a unit was destroyed)
     RMSDetector();
 
     /*!

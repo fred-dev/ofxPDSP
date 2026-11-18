@@ -84,6 +84,13 @@ void pdsp::SRDelay::prepareUnit( int expectedBufferSize, double sampleRate){
 
 }
 
+pdsp::SRDelay::~SRDelay(){
+    if (delayBuffer != nullptr){
+        delete[] delayBuffer;
+        delayBuffer = nullptr;
+    }
+}
+
 void pdsp::SRDelay::releaseResources(){
         if (delayBuffer != nullptr){
                 delete[] delayBuffer;

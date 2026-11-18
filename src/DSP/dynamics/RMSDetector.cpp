@@ -49,6 +49,12 @@ void pdsp::RMSDetector::prepareUnit( int expectedBufferSize, double sampleRate )
 }
 
 
+pdsp::RMSDetector::~RMSDetector(){
+    if (squaresDividedBuffer != nullptr){
+        ofx_deallocate_aligned(squaresDividedBuffer);
+    }
+}
+
 void pdsp::RMSDetector::releaseResources () {
     if(squaresDividedBuffer != nullptr){
         ofx_deallocate_aligned( squaresDividedBuffer );

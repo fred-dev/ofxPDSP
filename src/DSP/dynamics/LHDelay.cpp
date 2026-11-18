@@ -66,6 +66,12 @@ pdsp::Patchable& pdsp::LHDelay::out_signal(){
     return out("signal");
 }
 
+pdsp::LHDelay::~LHDelay(){
+    if (delayBuffer != nullptr){
+        ofx_deallocate_aligned(delayBuffer);
+    }
+}
+
 void pdsp::LHDelay::releaseResources(){
         if (delayBuffer != nullptr){
                 ofx_deallocate_aligned(delayBuffer);

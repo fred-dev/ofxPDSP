@@ -16,6 +16,7 @@ namespace pdsp{
     */
 class SamplesDelay : public Unit {
 public:
+    ~SamplesDelay(); ///< frees the buffer (it leaked when a unit was destroyed)
 
     SamplesDelay();
 

@@ -8,7 +8,10 @@ void pdsp::PatchOutputNode::setOversampleLevel(int newOversample) {
 
 
 pdsp::PatchNode::PatchNode(){
-        output.buffer = nullptr;
+        // OutputNode() already allocated a buffer if the engine was running
+        // (dynamic construction). The output only ever borrows the input's
+        // buffer (see process()), so free it here instead of leaking it.
+        if( output.buffer != nullptr ) { ofx_deallocate_aligned( output.buffer ); }
         output.state = Unchanged;
         addInput("patch", input);
         addOutput("patch", output);

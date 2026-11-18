@@ -18,6 +18,7 @@ namespace pdsp{
     */
 class AllPassDelay : public Unit {
 public:
+    ~AllPassDelay(); ///< frees the buffer (it leaked when a unit was destroyed)
 
     AllPassDelay();
 

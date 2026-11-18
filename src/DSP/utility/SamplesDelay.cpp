@@ -46,6 +46,12 @@ void pdsp::SamplesDelay::prepareUnit ( int expectedBufferSize, double sampleRate
         silenceSamples = 0;
 }
 
+pdsp::SamplesDelay::~SamplesDelay(){
+    if (delayBuffer != nullptr){
+        ofx_deallocate_aligned(delayBuffer);
+    }
+}
+
 void pdsp::SamplesDelay::releaseResources(){
         if (delayBuffer != nullptr){
                 ofx_deallocate_aligned(delayBuffer);

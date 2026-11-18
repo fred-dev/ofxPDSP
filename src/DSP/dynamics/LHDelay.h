@@ -16,6 +16,7 @@ namespace pdsp{
     */
 class LHDelay : public Unit {
 public:
+    ~LHDelay(); ///< frees the buffer (it leaked when a unit was destroyed)
 
     LHDelay();
 
