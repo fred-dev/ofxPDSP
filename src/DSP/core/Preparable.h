@@ -43,6 +43,8 @@ public:
     Preparable();
         
     static double getGlobalSampleRate();
+    /// Block size every unit's buffers were prepared for (prepareAllToPlay()).
+    static int getGlobalBufferSize();
     
 protected:
     /*!

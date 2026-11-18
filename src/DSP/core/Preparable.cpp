@@ -70,6 +70,10 @@ void setInitOversample(int initOversample){
 double Preparable::getGlobalSampleRate() {
     return globalSampleRate;
 }
+
+int Preparable::getGlobalBufferSize() {
+    return globalBufferSize;
+}
  
 }//END NAMESPACE
 

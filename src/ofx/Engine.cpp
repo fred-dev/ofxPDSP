@@ -353,6 +353,7 @@ void pdsp::Engine::close(){
 void pdsp::Engine::audioOut(ofSoundBuffer &outBuffer) {
 
     callbackCount++;
+    deviceBufferSize.store( static_cast<int>( outBuffer.getNumFrames() ) );
 
     // Denormal flushing is per thread, so it has to be set on the audio thread.
     ofx_activate_denormal_flush();
@@ -380,6 +381,10 @@ uint64_t pdsp::Engine::getCallbackCount() const {
     return callbackCount.load();
 }
 
+int pdsp::Engine::getDeviceBufferSize() const {
+    return deviceBufferSize.load();
+}
+
 void pdsp::Engine::renderOffline( float* interleaved, int channels, int frames ) {
     ofx_activate_denormal_flush();
     std::lock_guard<std::mutex> lock( patchMutex );
@@ -387,6 +392,20 @@ void pdsp::Engine::renderOffline( float* interleaved, int channels, int frames )
 }
 
 void pdsp::Engine::processBlock( float* interleaved, int channels, int frames ) {
+    // Every unit's buffers hold the block size given to prepareAllToPlay().
+    // A sound device can deliver larger blocks than were asked for (ALSA may
+    // round the period up, and openFrameworks does not pass the real size
+    // back), and processing those in one go writes past every buffer. So
+    // never process more than the prepared size at a time.
+    const int prepared = pdsp::Preparable::getGlobalBufferSize();
+    const int chunk = prepared > 0 ? prepared : frames;
+    for( int done = 0; done < frames; done += chunk ){
+        int n = frames - done < chunk ? frames - done : chunk;
+        processChunk( interleaved + done * channels, channels, n );
+    }
+}
+
+void pdsp::Engine::processChunk( float* interleaved, int channels, int frames ) {
 
     int bufferSize = frames;
 

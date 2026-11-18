@@ -204,6 +204,14 @@ public:
     */
     uint64_t getCallbackCount() const;
 
+    /*!
+    @brief Frames the sound device delivered in its last callback (0 before the
+    first one). A device may run at another period size than setup() asked for:
+    larger blocks are processed in pieces of the prepared size, so this is only
+    for reporting.
+    */
+    int getDeviceBufferSize() const;
+
 /*!
     @cond HIDDEN_SYMBOLS
 */
@@ -260,9 +268,11 @@ private:
     std::mutex patchMutex;
     std::atomic<uint64_t> skippedCallbacks { 0 };
     std::atomic<uint64_t> callbackCount { 0 };
+    std::atomic<int> deviceBufferSize { 0 };
 
     // Midi, osc, sequencer and DSP processing shared by audioOut() and renderOffline().
     void processBlock( float* interleaved, int channels, int frames );
+    void processChunk( float* interleaved, int channels, int frames );
         
 };
 
